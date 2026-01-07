@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+
+
+<title>Evaluate and Upload Data</title>
+
+<script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
+// be compatible with the behavior of Pandoc < 2.8).
+document.addEventListener('DOMContentLoaded', function(e) {
+  var hs = document.querySelectorAll("div.section[class*='level'] > :first-child");
+  var i, h, a;
+  for (i = 0; i < hs.length; i++) {
+    h = hs[i];
+    if (!/^h[1-6]$/i.test(h.tagName)) continue;  // it should be a header h1-h6
+    a = h.attributes;
+    while (a.length > 0) h.removeAttribute(a[0].name);
+  }
+});
+</script>
+
+<style type="text/css">
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+span.underline{text-decoration: underline;}
+div.column{display: inline-block; vertical-align: top; width: 50%;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+</style>
+
+
+
+<style type="text/css">
+code {
+white-space: pre;
+}
+.sourceCode {
+overflow: visible;
+}
+</style>
+<style type="text/css" data-origin="pandoc">
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+{ counter-reset: source-line 0; }
+pre.numberSource code > span
+{ position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+{ content: counter(source-line);
+position: relative; left: -1em; text-align: right; vertical-align: baseline;
+border: none; display: inline-block;
+-webkit-touch-callout: none; -webkit-user-select: none;
+-khtml-user-select: none; -moz-user-select: none;
+-ms-user-select: none; user-select: none;
+padding: 0 4px; width: 4em;
+color: #aaaaaa;
+}
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa; padding-left: 4px; }
+div.sourceCode
+{ }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } 
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.at { color: #7d9029; } 
+code span.bn { color: #40a070; } 
+code span.bu { color: #008000; } 
+code span.cf { color: #007020; font-weight: bold; } 
+code span.ch { color: #4070a0; } 
+code span.cn { color: #880000; } 
+code span.co { color: #60a0b0; font-style: italic; } 
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.do { color: #ba2121; font-style: italic; } 
+code span.dt { color: #902000; } 
+code span.dv { color: #40a070; } 
+code span.er { color: #ff0000; font-weight: bold; } 
+code span.ex { } 
+code span.fl { color: #40a070; } 
+code span.fu { color: #06287e; } 
+code span.im { color: #008000; font-weight: bold; } 
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } 
+code span.kw { color: #007020; font-weight: bold; } 
+code span.op { color: #666666; } 
+code span.ot { color: #007020; } 
+code span.pp { color: #bc7a00; } 
+code span.sc { color: #4070a0; } 
+code span.ss { color: #bb6688; } 
+code span.st { color: #4070a0; } 
+code span.va { color: #19177c; } 
+code span.vs { color: #4070a0; } 
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } 
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    var j = 0;
+    while (j < rules.length) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") {
+        j++;
+        continue;
+      }
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') {
+        j++;
+        continue;
+      }
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Evaluate and Upload Data</h1>
+
+
+
+<p><em>The EDI data repository has a “<a href="https://portal-s.edirepository.org/nis/home.jsp">staging</a>”
+environment to test the upload and rendering of new data packages before
+publishing to “<a href="https://portal.edirepository.org/nis/home.jsp">production</a>”.
+These environments are functionally equivalent but the contained values
+are independent. For example, a data package identifier reserved by a
+user in “staging” will not work in “production” and vise versa.</em></p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(EDIutils)</span></code></pre></div>
+<p>Evaluation and upload to the repository requires data entities are
+described with EML metadata. There are many tools for creating EML, EDI
+supports two: the <a href="https://ediorg.github.io/EMLassemblyline/">EMLassemblyline</a> R
+package for programmatic workflows, and the <a href="https://ezeml.edirepository.org/eml/">ezEML</a> web form wizard.
+Research groups managing large volumes of metadata may want to consider
+the <a href="https://github.com/lter/LTER-core-metabase">LTER
+core-metabase</a>.</p>
+<div id="authenticate" class="section level2">
+<h2>Authenticate</h2>
+<p>Authentication is required by functions involving data evaluation and
+upload, audit report access, event notifications, and other account
+based features. Request an account from <a href="mailto:support@edirepository.org" class="email">support@edirepository.org</a>. There are three options for
+authenticating:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Interactively at the console</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">login</span>()</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; User name: &quot;my_name&quot;</span></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; User password: &quot;my_secret&quot;</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co"># Programmatically with function arguments</span></span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">login</span>(<span class="at">userId =</span> <span class="st">&quot;my_name&quot;</span>, <span class="at">userPass =</span> <span class="st">&quot;my_secret&quot;</span>)</span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co"># Programmatically with a file containing userId and userPass arguments</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="fu">login</span>(<span class="at">config =</span> <span class="fu">paste0</span>(<span class="fu">tempdir</span>(), <span class="st">&quot;/config.txt&quot;</span>))</span></code></pre></div>
+<p>The <code>login()</code> function exchanges credentials for temporary
+(~10 hour) authentication tokens, which are written to the
+<code>EDI_TOKEN</code> and <code>AUTH_TOKEN</code> environment variable
+referenced by EDIutils functions requiring authentication.</p>
+</div>
+<div id="reserve-a-data-package-id" class="section level2">
+<h2>Reserve a Data Package ID</h2>
+<p>Data package reservations prevent conflicting use of the same
+identifier.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="co"># Create reservation</span></span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>identifier <span class="ot">&lt;-</span> <span class="fu">create_reservation</span>(<span class="at">scope =</span> <span class="st">&quot;edi&quot;</span>, <span class="at">env =</span> <span class="st">&quot;staging&quot;</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>identifier</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt; [1] 595</span></span></code></pre></div>
+</div>
+<div id="evaluate" class="section level2">
+<h2>Evaluate</h2>
+<p>Evaluation checks for metadata accuracy and completeness.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a></span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co"># Evaluate data package</span></span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>transaction <span class="ot">&lt;-</span> <span class="fu">evaluate_data_package</span>(</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a> <span class="at">eml =</span> <span class="fu">paste0</span>(<span class="fu">tempdir</span>(), <span class="st">&quot;/edi.595.1.xml&quot;</span>), </span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a> <span class="at">env =</span> <span class="st">&quot;staging&quot;</span>)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a>transaction</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; [1] &quot;evaluate_163966785813042760&quot;</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co"># Check status</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a>status <span class="ot">&lt;-</span> <span class="fu">check_status_evaluate</span>(transaction, <span class="at">env =</span> <span class="st">&quot;staging&quot;</span>)</span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a>status</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+</div>
+<div id="interpreting-the-evaluation-report" class="section level2">
+<h2>Interpreting the Evaluation Report</h2>
+<div id="report-summary" class="section level3">
+<h3>Report Summary</h3>
+<p>The evaluation report summary provides a quick look at the data
+package evaluation results. Specifically, the total number of checks run
+and how many of these checks resulted in statuses of “valid”, “info”,
+“warn”, or “error”.</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="co"># Summarize report</span></span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="fu">read_evaluate_report_summary</span>(transaction, <span class="at">env =</span> <span class="st">&quot;staging&quot;</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; ===================================================</span></span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt;   EVALUATION REPORT</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; ===================================================</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; PackageId: edi.595.1</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt; Report Date/Time: 2021-12-16T22:49:25</span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; Total Quality Checks: 29</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; Valid: 21</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; Info: 8</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; Warn: 0</span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; Error: 0</span></span></code></pre></div>
+<p>The meaning of these status messages:</p>
+<ul>
+<li>Valid - The result of the quality check matches the
+expectation.</li>
+<li>Info - The result of the quality check may or may not match the
+expectation, but since the expectation is not required, information is
+returned instead of a Warn or Error.</li>
+<li>Warn - The result of the quality check does not match the
+expectation. A match is not explicitly required to publish the data
+package, but strongly recommended.</li>
+<li>Error - The result of the quality check does not match the
+expectation. A match is required before the data package can be
+published.</li>
+</ul>
+<p>Any evaluation check that results in a warning or error status should
+be resolved before moving ahead (note that errors must be corrected).
+Resolve problems with the data and metadata and repeat the evaluation
+process until all errors (and preferably all warnings) are resolved.</p>
+</div>
+<div id="full-report" class="section level3">
+<h3>Full Report</h3>
+<p>The full evaluation report provides detailed information on each
+check and some diagnostics to help resolve issues. The full report can
+be printed to the console or written to file as plain text or as html to
+be viewed in a web browser (recommended). See
+<code>?read_evaluate_report</code> for details.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="co"># Read the evaluation report</span></span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>report <span class="ot">&lt;-</span> <span class="fu">read_evaluate_report</span>(transaction, <span class="at">as =</span> <span class="st">&quot;char&quot;</span>, <span class="at">env =</span> <span class="st">&quot;staging&quot;</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="fu">message</span>(report)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; ===================================================</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;   EVALUATION REPORT</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; ===================================================</span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;   </span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; PackageId: edi.595.1</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; Report Date/Time: 2021-12-16T08:17:40</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; Total Quality Checks: 29</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; Valid: 21</span></span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; Info: 8</span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt; Warn: 0</span></span>
+<span id="cb6-14"><a href="#cb6-14" tabindex="-1"></a><span class="co">#&gt; Error: 0</span></span>
+<span id="cb6-15"><a href="#cb6-15" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-16"><a href="#cb6-16" tabindex="-1"></a><span class="co">#&gt; ---------------------------------------------------</span></span>
+<span id="cb6-17"><a href="#cb6-17" tabindex="-1"></a><span class="co">#&gt;   DATASET REPORT</span></span>
+<span id="cb6-18"><a href="#cb6-18" tabindex="-1"></a><span class="co">#&gt; ---------------------------------------------------</span></span>
+<span id="cb6-19"><a href="#cb6-19" tabindex="-1"></a><span class="co">#&gt;   </span></span>
+<span id="cb6-20"><a href="#cb6-20" tabindex="-1"></a><span class="co">#&gt; IDENTIFIER: packageIdPattern</span></span>
+<span id="cb6-21"><a href="#cb6-21" tabindex="-1"></a><span class="co">#&gt; NAME: packageId pattern matches &quot;scope.identifier.revision&quot;</span></span>
+<span id="cb6-22"><a href="#cb6-22" tabindex="-1"></a><span class="co">#&gt; DESCRIPTION: Check against LTER requirements for scope.identifier.revision</span></span>
+<span id="cb6-23"><a href="#cb6-23" tabindex="-1"></a><span class="co">#&gt; EXPECTED: &#39;scope.n.m&#39;, where &#39;n&#39; and &#39;m&#39; are integers and &#39;scope&#39; is one ...</span></span>
+<span id="cb6-24"><a href="#cb6-24" tabindex="-1"></a><span class="co">#&gt; FOUND: edi.595.1</span></span>
+<span id="cb6-25"><a href="#cb6-25" tabindex="-1"></a><span class="co">#&gt; STATUS: valid</span></span>
+<span id="cb6-26"><a href="#cb6-26" tabindex="-1"></a><span class="co">#&gt; EXPLANATION: </span></span>
+<span id="cb6-27"><a href="#cb6-27" tabindex="-1"></a><span class="co">#&gt; SUGGESTION: </span></span>
+<span id="cb6-28"><a href="#cb6-28" tabindex="-1"></a><span class="co">#&gt; REFERENCE: </span></span>
+<span id="cb6-29"><a href="#cb6-29" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-30"><a href="#cb6-30" tabindex="-1"></a><span class="co">#&gt; IDENTIFIER: emlVersion</span></span>
+<span id="cb6-31"><a href="#cb6-31" tabindex="-1"></a><span class="co">#&gt; NAME: EML version 2.1.0 or beyond</span></span>
+<span id="cb6-32"><a href="#cb6-32" tabindex="-1"></a><span class="co">#&gt; DESCRIPTION: Check the EML document declaration for version 2.1.0 or higher</span></span>
+<span id="cb6-33"><a href="#cb6-33" tabindex="-1"></a><span class="co">#&gt; EXPECTED: eml://ecoinformatics.org/eml-2.1.0 or higher</span></span>
+<span id="cb6-34"><a href="#cb6-34" tabindex="-1"></a><span class="co">#&gt; FOUND: https://eml.ecoinformatics.org/eml-2.2.0</span></span>
+<span id="cb6-35"><a href="#cb6-35" tabindex="-1"></a><span class="co">#&gt; STATUS: valid</span></span>
+<span id="cb6-36"><a href="#cb6-36" tabindex="-1"></a><span class="co">#&gt; EXPLANATION: Validity of this quality report is dependent on this check ...</span></span>
+<span id="cb6-37"><a href="#cb6-37" tabindex="-1"></a><span class="co">#&gt; SUGGESTION: </span></span>
+<span id="cb6-38"><a href="#cb6-38" tabindex="-1"></a><span class="co">#&gt; REFERENCE: </span></span>
+<span id="cb6-39"><a href="#cb6-39" tabindex="-1"></a><span class="co">#&gt; ...</span></span></code></pre></div>
+<p>The Evaluation Report is broken into multiple parts, always starting
+with the Dataset Report, and followed by an Entity Report for each
+entity (data object/file) included in the data package. These are
+differentiated by header lines with the Entity Name and Identifier.</p>
+<p>The Dataset and Entity Reports share the same layout:</p>
+<ul>
+<li># - The number of the quality check</li>
+<li>Identifier - The identifier of the quality check</li>
+<li>Status - The status of the result of the quality check</li>
+<li>Quality Check - Describes the type of the quality check (data,
+metadata, or congruency), the system (knb, lter), and the status that
+results on failure</li>
+<li>Name - The name of the quality check</li>
+<li>Description - Brief description of the quality check</li>
+<li>Expected - The result that the quality check is expecting</li>
+<li>Found - The actual result of the quality check</li>
+<li>Explanation - Additional information describing the rationale of the
+quality check</li>
+<li>Suggestion - Potential data package improvements to implement to
+pass the quality check</li>
+<li>Reference - Source of the rationale for the quality check or where
+to find more information</li>
+</ul>
+<p>Parse through the document and address any errors or warnings
+(denoted by the Error and Warn labels). To understand why a quality
+check failed, first read the Name and Description of the quality check
+to determine what was being tested and how the test was being conducted.
+Then, compare the Expected result to what was Found. If it is still not
+clear what caused the failure, try to gain additional insight from the
+Explanation, Suggestion, and Reference fields, or contact the EDI Data
+Curation Team for clarification (<a href="mailto:info@edirepository.org" class="email">info@edirepository.org</a>).</p>
+</div>
+</div>
+<div id="upload" class="section level2">
+<h2>Upload</h2>
+<p>Upload after errors and warnings are fixed.</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="co"># Create a new data package</span></span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>transaction <span class="ot">&lt;-</span> <span class="fu">create_data_package</span>(</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a> <span class="at">eml =</span> <span class="fu">paste0</span>(<span class="fu">tempdir</span>(), <span class="st">&quot;/edi.595.1.xml&quot;</span>), </span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a> <span class="at">env =</span> <span class="st">&quot;staging&quot;</span>)</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a>transaction</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; [1] &quot;create_163966765080210573__edi.595.1&quot;</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co"># Check status</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a>status <span class="ot">&lt;-</span> <span class="fu">check_status_create</span>(</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a> <span class="at">transaction =</span> transaction, </span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a> <span class="at">env =</span> <span class="st">&quot;staging&quot;</span>)</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a>status</span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+</div>
+<div id="update" class="section level2">
+<h2>Update</h2>
+<p>Update is the same as upload, but with an incremented data package
+version number (e.g. “edi.595.2” supersedes “edi.595.1”). <em>NOTE: The
+new identifier must be added to the “packageId” element in the EML and
+as the new EML file name.</em></p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="co">#&#39; # Update data package</span></span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&#39; transaction &lt;- update_data_package(</span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&#39;   eml = paste0(tempdir(), &quot;/edi.595.2.xml&quot;), </span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&#39;   env = &quot;staging&quot;)</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&#39; transaction</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&#39; #&gt; [1] &quot;update_edi.595_163966788658131920__edi.595.2&quot;</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&#39; </span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&#39; # Check status</span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&#39; status &lt;- check_status_update(</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&#39;   transaction = transaction, </span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&#39;   env = &quot;staging&quot;)</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&#39; status</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&#39; #&gt; [1] TRUE</span></span></code></pre></div>
+<p>Once everything looks good in the “staging” environment, then repeat
+the above reservation and upload steps in the “production” environment
+where the data package will be assigned a DOI and made discoverable with
+other published data.</p>
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

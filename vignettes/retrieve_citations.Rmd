@@ -1,0 +1,62 @@
+---
+title: "Retrieve Citation Metrics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Retrieve Citation Metrics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+This vignette demonstrates how to query the EDI repository for journal articles that cite a certain data package. These stats may be used in reports.
+
+
+```{r, eval=FALSE}
+library(EDIutils)
+library(dplyr)
+library(tidyr)
+```
+
+## Get the Journal Citation Report for Specific Data Packages
+
+Get all identifiers for a certain scope.
+
+
+```{r, eval=FALSE}
+scope <- "edi"
+identifiers <- list_data_package_identifiers(scope)
+```
+
+Get the latest revisions for each identifier and retrieve all journal citations.
+
+The citation information is returned as a data frame. First set up the empty data frame to append all records to.
+
+
+```{r, eval=FALSE}
+identifiers <- paste0(scope, ".", identifiers, ".1")
+res <- lapply(identifiers, list_data_package_citations, list_all = TRUE)
+df_return_all <- do.call(rbind, res)
+```
+
+Various analyses may now be conducted on this data frame. E.g., number of articles citing data packages
+
+```{r, eval=FALSE}
+df_data_packages <- df_return_all %>%
+  separate(
+    packageId,
+    into = c("scope", "datasetNum", "revision"),
+    sep = "\\."
+  ) %>%
+  mutate(datasetId = paste(scope, datasetNum, sep = ".")) %>%
+  distinct(datasetId)
+
+print(paste("Unique data packages being cited:", nrow(df_data_packages)))
+#> [1] "Unique data packages being cited: 375"
+```
+
+or the number of articles citing data packages
+
+```{r, eval=FALSE}
+df_articles <- df_return_all %>%  distinct(articleUrl)
+print(paste('Number of aricles:', nrow(df_articles)))
+#> [1] "Number of aricles: 503"
+```

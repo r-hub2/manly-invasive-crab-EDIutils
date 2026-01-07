@@ -1,0 +1,199 @@
+---
+title: "Search and Access Data"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Search and Access Data}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(EDIutils)
+```
+
+## Search
+
+The repository search service is a standard deployment of Apache Solr and indexes select metadata fields of data packages. Some of the possible motivations for using the search API include:
+
+* Building a custom search interface that offers some feature not found in the EDI data portal (e.g. build a query interface where the search results are always restricted to a particular research project).
+
+* Building a local data catalog. In this case we are constructing the query in our program and displaying a table of matching documents for our local site including things like title, authors, keywords, and perhaps the abstract. 
+
+* Mining data where EML metadata is the data to be mined, processed, or analyzed in some way.
+
+* Increased efficiency in that using the search API is often faster than relying on the data portal where the results are displayed in HTML and paged 10 documents at a time.
+
+For a list of searchable fields see `search_data_packages()`. For more on constructing Solr queries see the [Apache Solr Wiki](https://cwiki.apache.org/confluence/display/solr/). For a browser based search experience use the [EDI data portal](https://portal.edirepository.org/nis/advancedSearch.jsp).
+
+Results can be filtered to include only fields of interest.
+
+```{r eval=FALSE}
+# Match all documents with keywords "disturbance" and return only their IDs
+res <- search_data_packages(query = 'q=keyword:disturbance&fl=id')
+```
+
+When constructing a query note that the 15403 data packages of the [ecotrends](https://lternet.edu/the-ecotrends-project/) project and 10492 data packages of the [LTER Landsat](https://lternet.edu/lter-remote-sensing-and-geographic-information-system-data/) project, can be excluded from the returned results by including `&fq=-scope:(ecotrends+lter-landsat)` in the query string.
+
+```{r eval=FALSE}
+# Match all documents with keywords "disturbance", excluding ecotrends and 
+# lter-landsat scopes from the returned results
+query <- 'q=keyword:disturbance&fl=packageid&fq=-scope:(ecotrends+lter-landsat)'
+res <- search_data_packages(query)
+```
+
+Use wild cards operators to match anything and control the number of returned results.
+
+```{r eval=FALSE}
+# Match anything, display all fields, limit to only one document
+res <- search_data_packages(query = 'q=*&fl=*&rows=1')
+```
+
+Use scope, keyword, and author fields to get all data packages belonging to a research site, organization, or author.
+
+```{r eval=FALSE}
+# Find all FCE LTER data packages, displaying the package id, title, and DOI
+query <- 'q=scope:knb-lter-fce&fl=packageid,title,doi&rows=100'
+res <- search_data_packages(query)
+
+# Query on author
+query <- 'q=author:duane+costa&fq=author:costa&fl=id,title,author,score'
+res <- search_data_packages(query)
+```
+
+Queries can be complex.
+
+```{r eval=FALSE}
+# Query on subject "Primary Production" OR subject "plant". Note that 'subject'
+# is an aggregation of several other fields containing searchable text: 
+# 'author', 'organization', 'title', 'keyword', and 'abstract' fields rolled
+# together into a single searchable field.
+query <- paste0('q=subject:("Primary+Production")+OR+subject:plant&fq=',
+                '-scope:ecotrends&fq=-scope:lter-landsat*&fl=id,packageid,',
+                'title,author,organization,pubdate,coordinates')
+res <- search_data_packages(query)
+```
+
+An alternative method for searching and retrieving metadata is the "list and read" method. It involves listing data package identifiers of interest, then read the corresponding metadata of those data packages one at a time, parsing and extracting whatever metadata from them that you're interested in searching or doing additional processing on. Although this sounds like more work than using the search API, and in fact it generally is, there are some use cases where this might be the preferred approach. For example this list and read method allows access to previous versions of a data package, whereas the search API only provides access to the most recent version, and this method provides access to all EML content, not just indexed fields.
+
+## Access
+
+The EDI data repository provides open access to archived data as packages. Packages can be downloaded in .zip format or their individual data entities downloaded as raw bytes and files. Entities with a common format can be parsed simply by most readers while more complex formats need metadata to help with parsing.
+
+Sometimes, it's valuable to work with the latest version within a series of data packages to ensure you have the most current data for your application. To determine the newest data package identifier, you can utilize the 'newest' filter provided by the `list_data_package_revisions()` function and append the returned value to the 'scope' and 'identifier' parameters.
+
+```{r eval=FALSE}
+scope = "edi"
+identifier = "1047"
+revision = list_data_package_revisions(scope, identifier, filter = "newest")
+paste(scope, identifier, revision, sep = ".")
+#> [1] "edi.1047.2"
+```
+
+However, there are some important considerations when working with the newest version. For instance, the 'entityId' (identifiers for individual data objects) can change as the data entity evolves, making it unsuitable for referencing the newest data entity. One workaround is to use the 'entityName', which may remain stable across versions, although this isn't always guaranteed. Additionally, be aware that alterations to the data entity structure, such as changes to data table and column names, can potentially disrupt your processes. In such cases, robust messaging and error handling can prove invaluable in workflows that rely on these data.
+
+For the purposes of this vignette, we will use 'edi.1047.1' as our example.
+
+
+```{r eval=FALSE}
+packageId <- "edi.1047.1"
+```
+
+Downloading a data package archive (.zip) requires a data package ID.
+
+```{r eval=FALSE}
+# Download data package to path
+read_data_package_archive(packageId, path = tempdir())
+#> |=============================================================| 100%
+dir(tempdir())
+#> [1] ""edi.1047.1.zip"
+```
+
+Downloading an individual data entity requires the entity ID.
+
+```{r eval=FALSE}
+# List data entities of the data package
+res <- read_data_entity_names(packageId)
+res
+#>                           entityId                entityName
+#> 1 3abac5f99ecc1585879178a355176f6d        Environmentals.csv
+#> 2 f6bfa89b48ced8292840e53567cbf0c8               ByCatch.csv
+#> 3 c75642ddccb4301327b4b1a86bdee906               Chinook.csv
+#> 4 2c9ee86cc3f3ffc729c5f18bfe0a2a1d             Steelhead.csv
+#> 5 785690848dd20f4910637250cdc96819 TrapEfficiencyRelease.csv
+#> 6 58b9000439a5671ea7fe13212e889ba5 TrapEfficiencySummary.csv
+#> 7 86e61c1a501b7dcf0040d10e009bfd87        TrapOperations.csv
+
+# Download Steelhead.csv in raw bytes. Use the entityName and entityID as keys.
+entityName <- "Steelhead.csv"
+entityId <- res$entityId[res$entityName == entityName]
+raw <- read_data_entity(packageId, entityId)
+head(raw)
+#> [1] ef bb bf 44 61 74
+```
+
+Common formats are easily parsed.
+
+```{r eval=FALSE}
+# These data have a common format are simply parsed
+data <- readr::read_csv(file = raw)
+data
+#> # A tibble: 2,926 x 14
+#>    Date   trapVisitID subSiteName catchRawID releaseID commonName 
+#>    <chr>        <dbl> <chr>            <dbl>     <dbl> <chr>      
+#>  1 1/12/~         326 North Chan~      32123         0 Steelhead ~
+#>  2 1/14/~         336 North Chan~      33980         0 Steelhead ~
+#>  3 1/15/~         337 North Chan~      32683         0 Steelhead ~
+#>  4 1/16/~         339 North Chan~      32971         0 Steelhead ~
+#>  5 1/17/~         341 North Chan~      33104         0 Steelhead ~
+#>  6 1/18/~         342 North Chan~      33304         0 Steelhead ~
+#>  7 1/19/~         343 North Chan~      33432         0 Steelhead ~
+#>  8 1/21/~         349 North Chan~      34083         0 Steelhead ~
+#>  9 1/21/~         349 North Chan~      34084         0 Steelhead ~
+#> 10 1/23/~         351 North Chan~      34384         0 Steelhead ~
+#> # ... with 2,916 more rows, and 8 more variables:
+#> #   lifeStage <chr>, forkLength <dbl>, weight <dbl>, n <dbl>,
+#> #   mort <chr>, fishOrigin <chr>, markType <chr>,
+#> #   CatchRaw.comments <chr>
+```
+
+Less common formats require metadata for parsing. This metadata is listed under the "physical" node of a data entities EML.
+
+_See the [emld](https://CRAN.R-project.org/package=emld) library for more on working with EML as a list or JSON-LD. See the [xml2](https://CRAN.R-project.org/package=xml2) library for working with EML as XML._
+
+```{r eval=FALSE}
+# Read the same data entity but using the physical metadata
+library(xml2)
+eml <- read_metadata(packageId)
+meta <- read_metadata_entity(packageId, entityId)
+fieldDelimiter <- xml_text(xml_find_first(meta, ".//physical//fieldDelimiter"))
+numHeaderLines <- xml_double(xml_find_first(meta, ".//physical//numHeaderLines"))
+data <- readr::read_delim(
+  file = raw, 
+  delim = fieldDelimiter, 
+  skip = numHeaderLines-1)
+data
+#> # A tibble: 2,926 x 14
+#>    Date   trapVisitID subSiteName catchRawID releaseID commonName 
+#>    <chr>        <dbl> <chr>            <dbl>     <dbl> <chr>      
+#>  1 1/12/~         326 North Chan~      32123         0 Steelhead ~
+#>  2 1/14/~         336 North Chan~      33980         0 Steelhead ~
+#>  3 1/15/~         337 North Chan~      32683         0 Steelhead ~
+#>  4 1/16/~         339 North Chan~      32971         0 Steelhead ~
+#>  5 1/17/~         341 North Chan~      33104         0 Steelhead ~
+#>  6 1/18/~         342 North Chan~      33304         0 Steelhead ~
+#>  7 1/19/~         343 North Chan~      33432         0 Steelhead ~
+#>  8 1/21/~         349 North Chan~      34083         0 Steelhead ~
+#>  9 1/21/~         349 North Chan~      34084         0 Steelhead ~
+#> 10 1/23/~         351 North Chan~      34384         0 Steelhead ~
+#> # ... with 2,916 more rows, and 8 more variables:
+#> #   lifeStage <chr>, forkLength <dbl>, weight <dbl>, n <dbl>,
+#> #   mort <chr>, fishOrigin <chr>, markType <chr>,
+#> #   CatchRaw.comments <chr>
+```
