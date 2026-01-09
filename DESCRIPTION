@@ -18,7 +18,7 @@ BugReports: https://github.com/ropensci/EDIutils/issues
 VignetteBuilder: knitr
 Language: en-US
 NeedsCompilation: no
-Packaged: 2026-01-09 16:14:53 UTC; csmith
+Packaged: 2026-01-09 17:11:08 UTC; csmith
 Author: Colin Smith [aut, cre] (0000-0003-2261-9931),
   Corinna Gries [ctb] (0000-0002-9091-6543),
   Jasmine Lai [rev] (0000-0001-8888-547X),
