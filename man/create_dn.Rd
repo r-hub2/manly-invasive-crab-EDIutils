@@ -2,7 +2,7 @@
 % Please edit documentation in R/create_dn.R
 \name{create_dn}
 \alias{create_dn}
-\title{Create a users distinguished name}
+\title{Create a users distinguished name (defunct)}
 \usage{
 create_dn(userId, ou = "EDI")
 }
@@ -17,7 +17,9 @@ Can be "EDI" or "LTER". All \code{userId} issued after "2020-05-01" have
 (character) Distinguished name
 }
 \description{
-Create a users distinguished name
+This function is defunct. Distinguished names are deprecated in favor of EDI 
+IDs. An EDI ID can be obtained from the EDI Identity and Access 
+Manager (\url{https://auth.edirepository.org/auth/ui/signin}).
 }
 \examples{
 # For an EDI account

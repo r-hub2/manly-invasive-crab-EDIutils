@@ -1,8 +1,14 @@
-EDIutils 1.1.0 (2026-01-06)
+EDIutils 2.2.0 (2026-01-09)
 ===========================
 
-### DEPRECATED
+### DEPRECATED AND DEFUNCT
   * Deprecate `get_audit_report()` in favor of `get_audit_csv_report()` (#62)
+  * Defunct `create_dn()`. This introduces a breaking change for 
+    `list_principal_owner_citations()` and `list_user_data_packages()`, 
+    which now require an EDI-ID instead of a Distinguished Name (DN). Users can 
+    obtain their EDI-ID by logging into the 
+    [EDI Identity and Access Manager](https://auth.edirepository.org/auth/ui/signin) 
+    and copying the "EDI-ID" from their profile home page. (#65)
 
 ### MINOR IMPROVEMENTS
 

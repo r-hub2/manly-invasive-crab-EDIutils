@@ -11,8 +11,9 @@ list_principal_owner_citations(
 )
 }
 \arguments{
-\item{principalOwner}{(character) Principal owner in the format returned by
-\code{create_dn()}}
+\item{principalOwner}{(character) The EDI ID of the principal owner. 
+EDI IDs can be obtained from the EDI Identity and Access 
+Manager (\url{https://auth.edirepository.org/auth/ui/signin}).}
 
 \item{as}{(character) Format of the returned object. Can be: "data.frame" 
 or "xml".}
@@ -31,8 +32,8 @@ List principal owner citations
 \dontrun{
 
 # List citations
-dn <- create_dn(userId = "FCE", ou = "EDI")
-journalCitations <- list_principal_owner_citations(principalOwner = dn)
+edi_id <- "EDI-543afa80c859825d35d37d9111c24a4a65a0ff9e"
+journalCitations <- list_principal_owner_citations(principalOwner = edi_id)
 }
 }
 \seealso{
