@@ -385,10 +385,16 @@ parameters to limit requests.</p>
 </div>
 <div id="get-the-audit-report-for-downloaded-data-entities" class="section level2">
 <h2>Get the Audit Report for Downloaded Data Entities</h2>
-<p>Accessing the audit report requires authentication.</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">login</span>()</span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; userID: &quot;my_name&quot;</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; userPass: &quot;my_secret&quot;</span></span></code></pre></div>
+<p>Authentication is required for all API methods. Effective July 30,
+2026, the EDI repository requires mandatory authenticated access for all
+REST API endpoints. You can obtain a free EDI user profile and generate
+an API access key from the <a href="https://auth.edirepository.org/auth/ui/signin">EDI IAM
+Portal</a>.</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Authenticate using your EDI-API key</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">login</span>(<span class="at">key =</span> <span class="st">&quot;your_api_key&quot;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># Or authenticate interactively / via legacy credentials</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">login</span>()</span></code></pre></div>
 <p>Setting the query parameters to get the desired audit report:</p>
 <ul>
 <li><code>category</code> should be ‘info’ to only see actual downloads

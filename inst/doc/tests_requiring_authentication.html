@@ -365,9 +365,13 @@ are released.</p>
 <p>The first line of any test requiring authentication should include
 <code>skip_if_logged_out()</code>. This is an internal use only function
 located in R/utilities.R. Tests including this line will be skipped
-unless the R environment variables <code>EDI_TOKEN</code> and
-<code>AUTH_TOKEN</code> are set. Use <code>login()</code> to set this
-variable.</p>
+unless the R environment variable <code>EDI_API_KEY</code> is set, or
+the legacy <code>EDI_TOKEN</code> and <code>AUTH_TOKEN</code> variables
+are set. Authenticate by passing <code>login(key = &quot;your_key&quot;)</code> or
+by defining the environment variable <code>EDI_API_KEY</code>.</p>
+<p>Note that computationally heavy tests are skipped when using an API
+key unless the environment variable <code>RUN_ALL_TESTS</code> is set to
+<code>&quot;true&quot;</code>.</p>
 <p>Example:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">context</span>(<span class="st">&quot;Create journal citation&quot;</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a></span>
@@ -431,7 +435,8 @@ that often change from test to test.</p></li>
 <div id="run-tests" class="section level2">
 <h2>Run Tests</h2>
 <ol style="list-style-type: decimal">
-<li><p>Authenticate with <code>login()</code></p></li>
+<li><p>Authenticate with <code>login(key = &quot;your_key&quot;)</code> or set the
+environment variable <code>EDI_API_KEY</code></p></li>
 <li><p>Configure test data package with
 <code>config_test_eml()</code></p></li>
 <li><p>Run test suite <code>devtools::test()</code></p></li>

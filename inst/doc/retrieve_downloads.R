@@ -6,9 +6,11 @@
 # library(lubridate)
 
 ## ----eval=FALSE---------------------------------------------------------------
+# # Authenticate using your EDI-API key
+# login(key = "your_api_key")
+# 
+# # Or authenticate interactively / via legacy credentials
 # login()
-# #> userID: "my_name"
-# #> userPass: "my_secret"
 
 ## ----eval=FALSE---------------------------------------------------------------
 # # Construct the query

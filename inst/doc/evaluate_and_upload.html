@@ -357,24 +357,30 @@ the <a href="https://github.com/lter/LTER-core-metabase">LTER
 core-metabase</a>.</p>
 <div id="authenticate" class="section level2">
 <h2>Authenticate</h2>
-<p>Authentication is required by functions involving data evaluation and
-upload, audit report access, event notifications, and other account
-based features. Request an account from <a href="mailto:support@edirepository.org" class="email">support@edirepository.org</a>. There are three options for
-authenticating:</p>
-<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># Interactively at the console</span></span>
-<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">login</span>()</span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; User name: &quot;my_name&quot;</span></span>
-<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; User password: &quot;my_secret&quot;</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a></span>
-<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co"># Programmatically with function arguments</span></span>
-<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="fu">login</span>(<span class="at">userId =</span> <span class="st">&quot;my_name&quot;</span>, <span class="at">userPass =</span> <span class="st">&quot;my_secret&quot;</span>)</span>
-<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a></span>
-<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co"># Programmatically with a file containing userId and userPass arguments</span></span>
-<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="fu">login</span>(<span class="at">config =</span> <span class="fu">paste0</span>(<span class="fu">tempdir</span>(), <span class="st">&quot;/config.txt&quot;</span>))</span></code></pre></div>
-<p>The <code>login()</code> function exchanges credentials for temporary
-(~10 hour) authentication tokens, which are written to the
-<code>EDI_TOKEN</code> and <code>AUTH_TOKEN</code> environment variable
-referenced by EDIutils functions requiring authentication.</p>
+<p>Authentication is required for all API methods. Effective July 30,
+2026, the EDI repository requires mandatory authenticated access for all
+REST API endpoints. You can obtain a free EDI user profile and generate
+an API access key from the <a href="https://auth.edirepository.org/auth/ui/signin">EDI IAM
+Portal</a>.</p>
+<p>There are four options for authenticating:</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="co"># 1. (Recommended) Authenticate using your EDI-API key</span></span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">login</span>(<span class="at">key =</span> <span class="st">&quot;your_api_key&quot;</span>)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co"># 2. (Recommended) Programmatically with a file containing your API key</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co"># File contents: key = your_api_key</span></span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="fu">login</span>(<span class="at">config =</span> <span class="fu">paste0</span>(<span class="fu">tempdir</span>(), <span class="st">&quot;/config.txt&quot;</span>))</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co"># 3. Interactively at the console (prompts for API key or legacy credentials)</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="fu">login</span>()</span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co"># 4. (Legacy fallback) Programmatically with username and password</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="fu">login</span>(<span class="at">userId =</span> <span class="st">&quot;my_name&quot;</span>, <span class="at">userPass =</span> <span class="st">&quot;my_secret&quot;</span>)</span></code></pre></div>
+<p>Setting the environment variable <code>EDI_API_KEY</code> (either
+through <code>login()</code> or directly in your <code>.Renviron</code>
+file) will automatically authenticate all requests. For legacy
+credentials, <code>login()</code> exchanges your credentials for
+temporary (~10 hour) tokens written to the <code>EDI_TOKEN</code> and
+<code>AUTH_TOKEN</code> system environment variables.</p>
 </div>
 <div id="reserve-a-data-package-id" class="section level2">
 <h2>Reserve a Data Package ID</h2>

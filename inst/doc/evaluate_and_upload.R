@@ -8,16 +8,18 @@ knitr::opts_chunk$set(
 library(EDIutils)
 
 ## ----eval=FALSE---------------------------------------------------------------
-# # Interactively at the console
-# login()
-# #> User name: "my_name"
-# #> User password: "my_secret"
+# # 1. (Recommended) Authenticate using your EDI-API key
+# login(key = "your_api_key")
 # 
-# # Programmatically with function arguments
-# login(userId = "my_name", userPass = "my_secret")
-# 
-# # Programmatically with a file containing userId and userPass arguments
+# # 2. (Recommended) Programmatically with a file containing your API key
+# # File contents: key = your_api_key
 # login(config = paste0(tempdir(), "/config.txt"))
+# 
+# # 3. Interactively at the console (prompts for API key or legacy credentials)
+# login()
+# 
+# # 4. (Legacy fallback) Programmatically with username and password
+# login(userId = "my_name", userPass = "my_secret")
 
 ## ----eval=FALSE---------------------------------------------------------------
 # # Create reservation
