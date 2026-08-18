@@ -434,13 +434,41 @@ that often change from test to test.</p></li>
 </div>
 <div id="run-tests" class="section level2">
 <h2>Run Tests</h2>
+<div id="standard-mock-tests-fast-offline" class="section level3">
+<h3>Standard Mock Tests (Fast / Offline)</h3>
+<p>By default, the test suite uses <code>vcr</code> cassettes for fast,
+offline testing:</p>
 <ol style="list-style-type: decimal">
-<li><p>Authenticate with <code>login(key = &quot;your_key&quot;)</code> or set the
-environment variable <code>EDI_API_KEY</code></p></li>
-<li><p>Configure test data package with
-<code>config_test_eml()</code></p></li>
-<li><p>Run test suite <code>devtools::test()</code></p></li>
+<li><p>Run the test suite:</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">test</span>()</span></code></pre></div></li>
 </ol>
+</div>
+<div id="live-http-tests-against-staging" class="section level3">
+<h3>Live HTTP Tests Against Staging</h3>
+<p>To run tests against the live PASTA staging environment instead of
+recorded VCR cassettes:</p>
+<ol style="list-style-type: decimal">
+<li><p>Set your staging API key:</p>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="st">&quot;EDI_API_KEY&quot;</span> <span class="ot">=</span> <span class="st">&quot;your_staging_api_key&quot;</span>)</span></code></pre></div></li>
+<li><p>(Optional) Configure test data package if running package
+lifecycle tests:</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a><span class="fu">config_test_eml</span>()</span></code></pre></div></li>
+<li><p>Enable all authenticated tests:</p>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="st">&quot;RUN_ALL_TESTS&quot;</span> <span class="ot">=</span> <span class="st">&quot;true&quot;</span>)</span></code></pre></div></li>
+<li><p>Bypass VCR cassette playback:</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="st">&quot;VCR_TURN_OFF&quot;</span> <span class="ot">=</span> <span class="st">&quot;true&quot;</span>)</span></code></pre></div></li>
+<li><p><strong>Request Throttling</strong>: When running real HTTP
+requests, the test suite automatically introduces a delay between
+requests (default 1 second) via <code>httr</code> response callbacks to
+avoid PASTA rate limits (HTTP 429). You can customize or disable this
+delay via the <code>EDI_TEST_THROTTLE_DELAY</code> environment
+variable:</p>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="co"># Set custom delay in seconds (e.g. 2s or 0s)</span></span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="fu">Sys.setenv</span>(<span class="st">&quot;EDI_TEST_THROTTLE_DELAY&quot;</span> <span class="ot">=</span> <span class="st">&quot;1&quot;</span>)</span></code></pre></div></li>
+<li><p>Run the test suite:</p>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>devtools<span class="sc">::</span><span class="fu">test</span>()</span></code></pre></div></li>
+</ol>
+</div>
 </div>
 
 
